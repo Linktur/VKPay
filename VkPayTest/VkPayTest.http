@@ -1,0 +1,6 @@
+@VkPayTest_HostAddress = http://localhost:5131
+
+GET {{VkPayTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
