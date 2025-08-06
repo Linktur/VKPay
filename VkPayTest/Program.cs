@@ -1,12 +1,33 @@
 using Microsoft.EntityFrameworkCore;
 using VkPayTest.Data;
+using VkPayTest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Entity Framework
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add VK Pay services
+builder.Services.Configure<VkSettings>(builder.Configuration.GetSection("VkSettings"));
+builder.Services.AddScoped<IVkPaymentService, VkPaymentService>();
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -39,6 +60,9 @@ catch (Exception ex)
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred while migrating the database.");
 }
+
+// Map controllers
+app.MapControllers();
 
 var summaries = new[]
 {
