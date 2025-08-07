@@ -39,9 +39,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => 
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "VK Pay Integration API v1");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+        c.RoutePrefix = "swagger"; // Serve Swagger UI at /swagger
     });
 }
+
+// Добавляем обслуживание статических файлов
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 app.UseRouting();

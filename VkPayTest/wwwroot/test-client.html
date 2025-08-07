@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK Pay Test Client</title>
+    <script src="https://unpkg.com/@vkontakte/vk-bridge@2.7.2/dist/browser.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f8fa;
+        }
+        h1 {
+            color: #2a5885;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2a5885;
+            margin-top: 0;
+        }
+        button {
+            background-color: #4a76a8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #3d6898;
+        }
+        input, select {
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #d3d9de;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2a5885;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .response {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .flex {
+            display: flex;
+            gap: 10px;
+        }
+        .flex > * {
+            flex: 1;
+        }
+        .warning {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>VK Pay Test Client</h1>
+    <p class="warning">Внимание: Эта страница предназначена только для тестирования API. В реальном приложении логика будет интегрирована с VK Mini Apps.</p>
+
+    <div class="card">
+        <h2>Инициализация</h2>
+        <button id="init-bridge">Инициализировать VK Bridge</button>
+        <p>Статус: <span id="init-status">Не инициализирован</span></p>
+    </div>
+
+    <div class="card">
+        <h2>Данные пользователя</h2>
+        <button id="get-user-info">Получить данные пользователя</button>
+        <div class="response">
+            <pre id="user-info">Нажмите кнопку для получения данных</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Тестирование OrderBox</h2>
+        <div class="flex">
+            <div>
+                <label for="user-id">ID пользователя:</label>
+                <input type="text" id="user-id" value="12345">
+                
+                <label for="item-id">ID товара:</label>
+                <input type="text" id="item-id" value="test_item_1">
+            </div>
+            <div>
+                <label for="server-url">URL сервера:</label>
+                <input type="text" id="server-url" value="http://localhost:5000">
+            </div>
+        </div>
+        <button id="test-order-box">Тестировать OrderBox</button>
+        <button id="show-order-box">Показать OrderBox (VK)</button>
+        <div class="response">
+            <pre id="order-box-response">Нажмите кнопку для теста</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Тестирование SubscriptionBox</h2>
+        <div class="flex">
+            <div>
+                <label for="sub-user-id">ID пользователя:</label>
+                <input type="text" id="sub-user-id" value="12345">
+                
+                <label for="sub-action">Действие:</label>
+                <select id="sub-action">
+                    <option value="create">Создать подписку</option>
+                    <option value="cancel">Отменить подписку</option>
+                    <option value="resume">Возобновить подписку</option>
+                </select>
+            </div>
+            <div>
+                <label for="subscription-id">ID подписки (для отмены/возобновления):</label>
+                <input type="text" id="subscription-id" placeholder="Оставьте пустым для создания">
+            </div>
+        </div>
+        <button id="test-subscription-box">Тестировать SubscriptionBox</button>
+        <button id="show-subscription-box">Показать SubscriptionBox (VK)</button>
+        <div class="response">
+            <pre id="subscription-box-response">Нажмите кнопку для теста</pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Тестирование уведомлений</h2>
+        <div class="flex">
+            <div>
+                <label for="notification-type">Тип уведомления:</label>
+                <select id="notification-type">
+                    <option value="get_item">get_item</option>
+                    <option value="order_status_change">order_status_change</option>
+                    <option value="get_subscription">get_subscription</option>
+                </select>
+            </div>
+            <div>
+                <label for="notification-status">Статус (для order_status_change):</label>
+                <select id="notification-status">
+                    <option value="purchased">purchased</option>
+                    <option value="canceled">canceled</option>
+                    <option value="refunded">refunded</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex">
+            <div>
+                <label for="notification-item">ID товара:</label>
+                <input type="text" id="notification-item" value="test_item_1">
+            </div>
+            <div>
+                <label for="notification-price">Цена:</label>
+                <input type="number" id="notification-price" value="100">
+            </div>
+        </div>
+        <button id="test-notification">Отправить тестовое уведомление</button>
+        <div class="response">
+            <pre id="notification-response">Нажмите кнопку для теста</pre>
+        </div>
+    </div>
+
+    <script>
+        // Константы и состояние
+        let isInitialized = false;
+        let userId = null;
+        
+        // Получаем элементы DOM
+        const initStatusEl = document.getElementById('init-status');
+        const userInfoEl = document.getElementById('user-info');
+        const orderBoxResponseEl = document.getElementById('order-box-response');
+        const subscriptionBoxResponseEl = document.getElementById('subscription-box-response');
+        const notificationResponseEl = document.getElementById('notification-response');
+        
+        // Вспомогательная функция для отображения JSON
+        function displayJson(element, data) {
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        // Вспомогательная функция для выполнения fetch запросов
+        async function fetchApi(url, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                return { success: true, data: result };
+            } catch (error) {
+                console.error('API error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Инициализация VK Bridge (эмуляция)
+        document.getElementById('init-bridge').addEventListener('click', () => {
+            try {
+                // В реальном приложении здесь был бы вызов
+                // bridge.send('VKWebAppInit');
+                console.log('VK Bridge initialized (emulated)');
+                isInitialized = true;
+                initStatusEl.textContent = 'Инициализирован';
+                initStatusEl.style.color = 'green';
+            } catch (e) {
+                console.error(e);
+                initStatusEl.textContent = 'Ошибка: ' + e.message;
+                initStatusEl.style.color = 'red';
+            }
+        });
+        
+        // Получение данных пользователя (эмуляция)
+        document.getElementById('get-user-info').addEventListener('click', async () => {
+            try {
+                // Эмуляция ответа от VK Bridge
+                const userInfo = {
+                    id: document.getElementById('user-id').value || 12345,
+                    first_name: 'Тестовый',
+                    last_name: 'Пользователь',
+                    photo_100: 'https://vk.com/images/camera_100.png',
+                    phone: '+7*********',
+                };
+                
+                userId = userInfo.id;
+                displayJson(userInfoEl, userInfo);
+            } catch (e) {
+                console.error(e);
+                userInfoEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+        
+        // Тестирование OrderBox
+        document.getElementById('test-order-box').addEventListener('click', async () => {
+            try {
+                const serverUrl = document.getElementById('server-url').value;
+                const userId = document.getElementById('user-id').value;
+                const itemId = document.getElementById('item-id').value;
+                
+                const url = `${serverUrl}/api/vkpayments/order-box?userId=${userId}&itemId=${itemId}`;
+                const result = await fetchApi(url);
+                
+                displayJson(orderBoxResponseEl, result);
+            } catch (e) {
+                console.error(e);
+                orderBoxResponseEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+        
+        // Показать OrderBox (эмуляция)
+        document.getElementById('show-order-box').addEventListener('click', async () => {
+            try {
+                const itemId = document.getElementById('item-id').value;
+                
+                // В реальном приложении здесь был бы вызов
+                // const result = await bridge.send('VKWebAppShowOrderBox', { item: itemId });
+                
+                // Эмуляция ответа
+                const result = {
+                    success: true,
+                    transaction_id: 'test_' + Date.now(),
+                    extra: `Покупка товара ${itemId}`
+                };
+                
+                displayJson(orderBoxResponseEl, result);
+            } catch (e) {
+                console.error(e);
+                orderBoxResponseEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+        
+        // Тестирование SubscriptionBox
+        document.getElementById('test-subscription-box').addEventListener('click', async () => {
+            try {
+                const serverUrl = document.getElementById('server-url').value;
+                const userId = document.getElementById('sub-user-id').value;
+                const action = document.getElementById('sub-action').value;
+                const subscriptionId = document.getElementById('subscription-id').value;
+                
+                let url = `${serverUrl}/api/vkpayments/subscription-box?userId=${userId}&action=${action}`;
+                if (subscriptionId) {
+                    url += `&subscriptionId=${subscriptionId}`;
+                }
+                
+                const result = await fetchApi(url, 'POST');
+                displayJson(subscriptionBoxResponseEl, result);
+            } catch (e) {
+                console.error(e);
+                subscriptionBoxResponseEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+        
+        // Показать SubscriptionBox (эмуляция)
+        document.getElementById('show-subscription-box').addEventListener('click', async () => {
+            try {
+                const action = document.getElementById('sub-action').value;
+                const subscriptionId = document.getElementById('subscription-id').value;
+                
+                // Параметры для VKWebAppShowSubscriptionBox
+                const params = {
+                    action: action
+                };
+                
+                if (subscriptionId && (action === 'cancel' || action === 'resume')) {
+                    params.subscription_id = subscriptionId;
+                }
+                
+                // В реальном приложении здесь был бы вызов
+                // const result = await bridge.send('VKWebAppShowSubscriptionBox', params);
+                
+                // Эмуляция ответа
+                const result = {
+                    success: true,
+                    subscription_id: subscriptionId || 'new_sub_' + Date.now()
+                };
+                
+                displayJson(subscriptionBoxResponseEl, result);
+            } catch (e) {
+                console.error(e);
+                subscriptionBoxResponseEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+        
+        // Тестирование уведомлений
+        document.getElementById('test-notification').addEventListener('click', async () => {
+            try {
+                const serverUrl = document.getElementById('server-url').value;
+                const notificationType = document.getElementById('notification-type').value;
+                const notificationStatus = document.getElementById('notification-status').value;
+                const notificationItem = document.getElementById('notification-item').value;
+                const notificationPrice = document.getElementById('notification-price').value;
+                
+                const userId = document.getElementById('user-id').value;
+                
+                // Подготавливаем данные уведомления
+                const notification = {
+                    type: "order",
+                    notificationType: notificationType,
+                    userId: userId,
+                    item: notificationItem,
+                    price: parseFloat(notificationPrice)
+                };
+                
+                // Для order_status_change добавляем статус
+                if (notificationType === 'order_status_change') {
+                    notification.status = notificationStatus;
+                }
+                
+                // Отправляем на тестовый endpoint
+                const result = await fetchApi(`${serverUrl}/api/vkpayments/test-callback`, 'POST', notification);
+                displayJson(notificationResponseEl, result);
+            } catch (e) {
+                console.error(e);
+                notificationResponseEl.textContent = 'Ошибка: ' + e.message;
+            }
+        });
+    </script>
+</body>
+</html>
