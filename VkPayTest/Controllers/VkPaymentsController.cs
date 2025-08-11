@@ -32,35 +32,18 @@ namespace VkPayTest.Controllers
         [HttpPost("callback")]
         public async Task<IActionResult> Callback([FromForm] VkPaymentNotification notification)
         {
-            _logger.LogInformation("Received VK payment notification: {NotificationType}", notification.NotificationType);
-
-            // Verify the signature if provided
-            if (!string.IsNullOrEmpty(notification.Sig))
-            {
-                var form = await Request.ReadFormAsync();
-                var notificationData = string.Join("&", form.Keys
-                    .Where(k => k != "sig")
-                    .OrderBy(k => k)
-                    .Select(k => $"{k}={form[k]}"));
-
-                if (!_paymentService.VerifySignature(notification.Sig, notificationData))
-                {
-                    _logger.LogWarning("Invalid signature for payment notification");
-                    return BadRequest("Invalid signature");
-                }
-            }
+            _logger.LogInformation("Received VK payment notification: {NotificationType} for item: {Item}", 
+                notification.NotificationType, notification.Item);
 
             // Process notification and get response
             var response = await _paymentService.ProcessPaymentNotificationAsync(notification);
             
             // Return different responses based on notification type
-            switch (notification.NotificationType)
+            switch (notification.NotificationType?.ToLower())
             {
                 case "get_item":
                     var itemResponse = await _paymentService.HandleGetItemAsync(notification);
-                    return Ok(new { response = itemResponse });
-                case "get_subscription":
-                    return Ok("ok"); // пока просто ок
+                    return Ok(itemResponse);
                 case "order_status_change":
                     var statusResponse = await _paymentService.HandleOrderStatusChangeAsync(notification);
                     return Ok(statusResponse);

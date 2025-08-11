@@ -13,6 +13,7 @@ namespace VkPayTest.Data
         }
 
         public DbSet<VkPaymentNotification> PaymentNotifications { get; set; }
+        public DbSet<VkItem> VkItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +45,20 @@ namespace VkPayTest.Data
                 entity.HasIndex(e => e.OrderId).IsUnique();
                 entity.HasIndex(e => e.SubscriptionId);
                 entity.HasIndex(e => e.CreatedAt);
+            });
+
+            // Configure VkItem entity
+            modelBuilder.Entity<VkItem>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasMaxLength(50);
+                entity.Property(e => e.TitleEn).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.TitleRu).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                
+                entity.HasIndex(e => e.IsActive);
             });
         }
     }

@@ -131,20 +131,33 @@ namespace VkPayTest.Services
         {
             _logger.LogInformation($"Processing get_item for item: {notification.Item}");
             
-            // В реальном приложении здесь бы был запрос к базе данных за информацией о товаре
-            // Пример:
-            // var item = await _context.Items.FindAsync(notification.Item);
-            // if (item == null) return new { error = "item_not_found" };
-            
-            // Возвращаем информацию о товаре для VK
-            return new
+            try
             {
-                title = "Тестовый товар",
-                photo_url = "https://example.com/item.jpg",
-                price = 100, // цена в рублях
-                item_id = notification.Item ?? "default_item",
-                description = "Описание тестового товара для VK Pay"
-            };
+                // Получаем товар из базы данных
+                var item = await _context.VkItems
+                    .FirstOrDefaultAsync(x => x.Id == notification.Item && x.IsActive);
+                
+                if (item == null)
+                {
+                    _logger.LogWarning($"Item not found or inactive: {notification.Item}");
+                    return new { error = "item_not_found" };
+                }
+                
+                // Возвращаем информацию о товаре для VK
+                return new
+                {
+                    title = item.TitleRu,
+                    photo_url = item.PhotoUrl ?? "https://lyboe.ru/images/default-item.jpg",
+                    price = (int)item.Price, // VK ожидает цену в копейках, но мы храним в рублях
+                    item_id = item.Id,
+                    description = item.DescriptionRu ?? item.TitleRu
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting item {notification.Item}");
+                return new { error = "internal_error" };
+            }
         }
 
         public async Task<object> HandleOrderStatusChangeAsync(VkPaymentNotification notification)

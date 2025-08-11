@@ -51,17 +51,20 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthorization();
 
-// Apply database migrations on startup
+// Apply database migrations and seed data on startup
 try
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
+    
+    // Seed VK items data
+    await DbInitializer.SeedAsync(dbContext);
 }
 catch (Exception ex)
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occurred while migrating the database.");
+    logger.LogError(ex, "An error occurred while migrating the database or seeding data.");
 }
 
 // Map controllers

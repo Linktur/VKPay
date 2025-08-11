@@ -5,36 +5,43 @@ using System.Text.Json.Serialization;
 
 namespace VkPayTest.Models
 {
-    public class VkPaymentNotification : BaseEntity
+    public class VkPaymentNotification
     {
-        [Required]
-        public string Type { get; set; } // order, subscription, etc.
+        public string? Type { get; set; } // order, subscription, etc.
         
         [Required]
-        public string NotificationType { get; set; } // get_item, get_subscription, order_status_change, etc.
+        public string? NotificationType { get; set; } // get_item, get_subscription, order_status_change, etc.
+        
+        public string? AppId { get; set; }
+        
+        public string? UserId { get; set; }
+        
+        public string? ReceiverId { get; set; }
+        
+        public string? OrderId { get; set; }
         
         [Required]
-        public string AppId { get; set; }
+        public string? Item { get; set; } // Item ID or subscription ID
         
-        [Required]
-        public string UserId { get; set; }
+        public string? ItemTitle { get; set; }
         
-        public string ReceiverId { get; set; } = "";
-        public string OrderId { get; set; } = "";
-        public string Item { get; set; } = ""; // Item ID or subscription ID
-        public string ItemTitle { get; set; } = "";
-        public string ItemPhotoUrl { get; set; } = "";
-        public decimal? Price { get; set; }
-        public string Currency { get; set; } = "RUB";
-        public string Status { get; set; } = ""; // chargeable, purchased, canceled, etc.
-        public string SubscriptionId { get; set; } = ""; // For subscriptions
-        public DateTime? ExpiresAt { get; set; } // For subscriptions
-        public DateTime? CanceledAt { get; set; } // For subscriptions
-        public string PaymentStatus { get; set; } = "";
-        public string Sig { get; set; } = ""; // VK signature for verification
+        public string? ItemPhotoUrl { get; set; }
         
-        // Raw request data for debugging
-        public string RawRequest { get; set; } = "{}";
+        public int? Price { get; set; }
+        
+        public string? Currency { get; set; }
+        
+        public string? Status { get; set; } // chargeable, purchased, canceled, etc.
+        
+        public string? SubscriptionId { get; set; } // For subscriptions
+        
+        public string? PaymentStatus { get; set; }
+        
+        public string? Sig { get; set; } // VK signature for verification
+        
+        public string? RawRequest { get; set; }
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         // Additional data
         [JsonExtensionData]
