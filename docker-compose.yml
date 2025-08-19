@@ -18,6 +18,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - vkpay-network
+
+  vkpay-api:
+    build:
+      context: ./VkPayTest
+      dockerfile: Dockerfile
+    container_name: vkpay_api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/weatherforecast"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - vkpay-network
 
 volumes:
   postgres_data:
+
+networks:
+  vkpay-network:
+    driver: bridge
