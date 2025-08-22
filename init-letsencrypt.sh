@@ -1,10 +1,11 @@
 #!/bin/bash
 
+
 domains=(lyboe.ru)
 rsa_key_size=4096
 data_path="./certbot"
-email="seva.nazmudinov@gmail.com # Замените на ваш email
-staging=0 # Установите в 1 для тестирования
+email="seva.nazmudinov@gmail.com"
+staging=0
 
 if [ -d "$data_path" ]; then
   read -p "Existing data found for $domains. Continue and replace existing certificate? (y/N) " decision

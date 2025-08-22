@@ -25,6 +25,15 @@ namespace VkPayTest.Controllers
             _logger = logger;
             _vkSettings = vkSettings.Value;
         }
+	
+	/// <summary>
+        /// Health check endpoint to verify the API is running.
+        /// </summary>
+        [HttpGet("health")]
+        public IActionResult HealthCheck()
+        {
+            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+        }
 
         /// <summary>
         /// Health check endpoint to verify the API is running.
