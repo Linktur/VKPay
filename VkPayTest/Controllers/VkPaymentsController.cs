@@ -27,6 +27,15 @@ namespace VkPayTest.Controllers
         }
 
         /// <summary>
+        /// Health check endpoint to verify the API is running.
+        /// </summary>
+        [HttpGet("health")]
+        public IActionResult HealthCheck()
+        {
+            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+        }
+
+        /// <summary>
         /// Main webhook endpoint for VK payment notifications
         /// </summary>
         [HttpPost("callback")]
